@@ -1,0 +1,12 @@
+.home {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #333;
+    background-color: rgb(255, 255, 255);
+}
