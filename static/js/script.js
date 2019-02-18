@@ -44,4 +44,12 @@ $(document).ready(function(){
             
         });
     });
+
+    $("#numero").focusout(function() {
+        var numero = $("#numero").val();
+        if (numero.substring(0, 1) == 3){
+            console.log(numero);
+            $("#txtAmex").show();
+        }
+    });
 });

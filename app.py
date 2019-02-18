@@ -5,6 +5,7 @@ from xml.etree import ElementTree as ET
 
 app = Flask(__name__)
 CORS(app)
+req = PagoSinTarjeta('Z703SOUS0','8ROOEJVYS4')
 
 @app.route('/')
 def output():
@@ -24,7 +25,7 @@ def post_javascript_data():
         year = str(request.form['anio'])
         cvv = str(request.form['cvv'])
 
-    req = PagoSinTarjeta('Z703SOUS0','8ROOEJVYS4')
+    #req = PagoSinTarjeta('Z703SOUS0','8ROOEJVYS4')
     req.nombre = name
     req.numerotarj = number
     req.expmonth = month
@@ -49,8 +50,8 @@ def obtiene_venta():
         company = request.form.get('strIdCompany')
         merchant = request.form.get('strIdMerchant')
     #print(respuesta)
-    logican = PagoSinTarjeta('', '')
-    response1 = logican.decrypt(respuesta)
+    #logican = PagoSinTarjeta('', '')
+    response1 = req.decrypt(respuesta)
     response1 = response1.decode('utf-8')
     #print(response1)
     response1 = response1.replace("<?xml version='1.0'encoding='UTF-8'?>", '')
@@ -62,9 +63,9 @@ def obtiene_venta():
             referencia = val.find('reference').text
             voucher_cliente = val.find('voucher_cliente').text
             voucher_comercio = val.find('voucher_comercio').text
-            vouchcl = logican.decrypt(voucher_cliente)
+            vouchcl = req.decrypt_voucher(voucher_cliente)
             print(vouchcl)
-            vouchco = logican.decrypt(voucher_comercio)
+            vouchco = req.decrypt_voucher(voucher_comercio)
             print(vouchco)
 
             if (resp == 'approved'):
