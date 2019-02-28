@@ -5,7 +5,7 @@ from xml.etree import ElementTree as ET
 
 app = Flask(__name__)
 CORS(app)
-req = PagoSinTarjeta('Z703SOUS0','8ROOEJVYS4')
+req = PagoSinTarjeta()
 
 @app.route('/')
 def output():
@@ -25,15 +25,19 @@ def post_javascript_data():
         year = str(request.form['anio'])
         cvv = str(request.form['cvv'])
 
-    #req = PagoSinTarjeta('Z703SOUS0','8ROOEJVYS4')
     req.nombre = name
     req.numerotarj = number
     req.expmonth = month
     req.expyear = year
     req.cvv = cvv
+    # Obtengo las credenciales de acceso al banco
+    req.obtener_credenciales() 
     texto = req.createxto()
+    print(texto)
     encrypted = req.encrypt(texto)
+    #print(encrypted)
     encrip = req.crearequest(encrypted)
+    #print(encrip)
     return jsonify(result=encrip)
 
 @app.route('/api/redirige', methods = ['GET'])
@@ -43,23 +47,23 @@ def redirige():
 
 @app.route('/api/response', methods = ['POST'])
 def obtiene_venta():
-    if not request.form.get('strIdCompany'):
-        respuesta = request.form.get('strResponse')
-    else:
-        respuesta = request.form.get('strResponse')
-        company = request.form.get('strIdCompany')
-        merchant = request.form.get('strIdMerchant')
+    #print('si llega aquí')
+    respuesta = request.form.get('strResponse')
+    company = request.form.get('strIdCompany')
+    merchant = request.form.get('strIdMerchant')
     #print(respuesta)
     #logican = PagoSinTarjeta('', '')
     response1 = req.decrypt(respuesta)
     response1 = response1.decode('utf-8')
-    #print(response1)
+    print(response1)
     response1 = response1.replace("<?xml version='1.0'encoding='UTF-8'?>", '')
-    if not request.form.get('strIdCompany'):
-        values = ET.fromstring(response1).findall('.//CENTEROFPAYMENTS')
-        for val in values:
-            resp = val.find('response').text
+    values = ET.fromstring(response1).findall('.//CENTEROFPAYMENTS')
+    for val in values:
+        resp = val.find('response').text
+
+        if (resp == 'approved'):
             numaut = val.find('auth').text
+            respuesta2 = 'Su transacción ha sido aprobada satisfactoriamente con el número de autorización ' + numaut
             referencia = val.find('reference').text
             voucher_cliente = val.find('voucher_cliente').text
             voucher_comercio = val.find('voucher_comercio').text
@@ -67,20 +71,12 @@ def obtiene_venta():
             print(vouchcl)
             vouchco = req.decrypt_voucher(voucher_comercio)
             print(vouchco)
-
-            if (resp == 'approved'):
-                respuesta2 = 'Su transacción ha sido aprobada satisfactoriamente con el número de autorización ' + numaut
-                return render_template('respuesta.html', respuesta=respuesta2)
-    else:
-        values = ET.fromstring(response1).findall('.//CENTEROFPAYMENTS')
-        for val in values:
-            resp = val.find('response').text
+            return render_template('respuesta.html', respuesta=respuesta2)           
+        elif (resp == 'denied'):
+            return render_template('respuesta.html', respuesta=resp)
+        else: # es un error
             error = val.find('nb_error').text
-
-            if (resp == 'denied'):
-                return render_template('respuesta.html', respuesta=resp)
-            elif (resp == 'error'):
-                return render_template('respuesta.html', respuesta=error)
+            return render_template('respuesta.html', respuesta=error)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)

@@ -1,2 +1,7 @@
 {
+    "peacock.affectedElements": [
+        "activityBar",
+        "statusBar",
+        "titleBar"
+    ]
 }
