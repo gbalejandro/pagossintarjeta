@@ -10,14 +10,15 @@
     <link rel="stylesheet" type="text/css" href="static/css/style.css">
 </head>
 <body class="home">
-    <div class="col-xs-12">
-        <div name="cliente" action="https://qa.mitec.com.mx/ws3dsecure/Auth3dsecure" method="POST">
+    <div class="col-xs-12" id="contenedor">
+        <div id="formulario" name="cliente" action="https://qa.mitec.com.mx/ws3dsecure/Auth3dsecure" method="POST">
             <div class="web-form-group">
                 <div class="col-xs-12 col-md-4 web_tc_label">Nombre</div>
-            </div>
-            <div class="col-xs-12 col-md-8">
-                <input class="form-control" name="nombre" id="nombre" 
-                value="Alejandro Gonzalez" maxlength="40" type="text" required>
+                <div class="col-xs-12 col-md-8">
+                    <input class="form-control" name="nombre" id="nombre" 
+                    value="Alejandro Gonzalez" maxlength="40" type="text" required>
+                </div>
+                <div class="col-xs-12 col-md-4" id="mensajeno" style="color:red"></div>
             </div>
             <div class="web-form-group">
                 <div class="col-xs-12 col-md-4 web_tc_label">Número</div>
@@ -25,8 +26,9 @@
                         <input class="form-control" id="numero" name="numero" 
                         maxlength="16" value="4111111111111111"  type="text" required>
                 </div>
+                <div class="col-xs-12 col-md-4" id="mensajenu" style="color:red"></div>
             </div>
-
+            
             <!-- Hiddens -->
             <!-- Indica si el pago por tarjeta es a plazos -->
             <!-- <input class="hidden" style="width: 90%; margin-left: 5%; margin-bottom: 4px;" type="text" 
@@ -89,10 +91,10 @@
                     </div>
                 </div>
             </div>
-            <div class="web-form-group">
+            <div id="cvvVM" class="web-form-group">
                 <div class="col-xs-12 col-md-4 web_tc_label">CVV</div>
                 <div class="col-xs-12 col-md-8">
-                    <input class="form-control" id="cvv" value="123" type="password">
+                    <input class="form-control" id="cvv" value="123" type="password" maxlength="3">
                 </div>
             </div>
         </br>
@@ -101,7 +103,7 @@
                     Ingrese su código de verificación que contiene la tarjeta American Express
                 </div>
                 <div class="col-xs-12 col-md-8">
-                    <input class="form-control" id="cvvAmex" value="" type="password">
+                    <input class="form-control" id="cvvAmex" value="" type="password" maxlength="4">
                 </div>
             </div>
         </br>

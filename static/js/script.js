@@ -12,7 +12,41 @@ function updateIsFinished()
     $('input[type="submit"]:nth-child(2)').trigger('click');
 }
 
+(function($){
+    var maxFront = 0;
+    var maxBack = 4;
+    var lastLength = -1;
+    $('.mask').on('keydown', function(){
+      var self = this;
+      setTimeout(function(){
+         var val = $(self).val();
+          var xxx = '';
+          if(val.length > lastLength){
+            $(self).data('value',  $(self).data('value') + val[val.length-1]);
+          }else{
+            var $value = $(self).data('value');
+            $(self).data('value', $value.slice(0, $value.length-(lastLength-val.length)));
+          }
+  
+          val = $(self).data('value');
+          fr = val.slice(0,maxFront);
+          bk = val.slice(-maxBack);
+          if (val.length > maxFront+maxBack-1) {
+            for (var i = maxFront; i < val.length-maxBack; i++) {
+              xxx = xxx + '*';
+            }
+            $(self).val( fr + xxx + bk);
+          }else{
+            $(self).val(val)
+          }
+          lastLength = val.length;
+          $('.data').text($(self).data('value'));
+        });
+    });
+})(jQuery);
+
 $(document).ready(function(){
+    $("#nombre").focus();
     $('#btnEnviar').click(function(event){
         $.ajax({
             url: 'postmethod',
@@ -22,7 +56,8 @@ $(document).ready(function(){
                    numero:$('#numero').val(),
                    mes:$('#mes').val(),
                    anio:$('#anio').val(),
-                   cvv:$('#cvv').val()
+                   cvv:$('#cvv').val(),
+                   cvvAmex:$('#txtAmex').val()
             },
             success:function(response)
             {
@@ -35,27 +70,52 @@ $(document).ready(function(){
             
         });
     });
-    // verifico si es american express o visa/master card
+
+    $("#nombre").focusout(function() {
+        var nombre = $("#nombre").val();
+        if (nombre.length == 0){
+            $("#mensajeno").html("Es necesario que ingrese el nombre tal cual viene en la tarjeta.");
+            setTimeout(function() {
+                $("#nombre").focus();
+                $("#nombre").select();
+            }, 5)            
+        }
+        else{
+            $("#mensajeno").html("");
+        }
+    });
+
     $("#numero").focusout(function() {
         var numero = $("#numero").val();
         if (numero.substring(0, 1) == 3){
             // valido que nada mas permita 15 números
             if (numero.length > 15 || numero.length < 15){
-                alert("La cantidad de números de este tipo de tarjeta no es la correcta.");
-                $("#numero").focus();
-                return false;
+                $("#mensajenu").html("Favor de ingresar la cantidad de números indicados para esta tarjeta");
+                setTimeout(function() {
+                    $("#numero").focus();
+                    $("#numero").select();
+                }, 5)
             }
             else {
+                $("#mensajenu").html("");
                 $("#txtAmex").show();
+                $("#cvvVM").hide();
             }            
         } 
         else {
             if (numero.length > 16 || numero.length < 16){
-                alert("La cantidad de números de este tipo de tarjeta no es la correcta.");
-                //$("#numero").focus();
-                return false;
+                $("#mensajenu").html("Favor de ingresar la cantidad de números indicados para esta tarjeta");
+                setTimeout(function() {
+                    $("#numero").focus();
+                    $("#numero").select();
+                }, 5)
+            }
+            else {
+                $("#mensajenu").html("");
             }            
         }
+        // no permite caracteres especiales
+        
     });
     // para el campo nombre del TH sólo permite letras y espacios
     $("#nombre").keypress(function (key) {
@@ -80,4 +140,50 @@ $(document).ready(function(){
             )
             return false;
     });
+    // evito el uso de teclas que no sean numericas
+    $("#numero").keypress(function(tecla){
+        if(tecla.charCode < 48 || tecla.charCode > 57) return false;
+        // no permite ceros
+        //if(tecla.charCode == 48) return false;
+    });
+
+    // $('#formulario').validate({
+    //     rules: {
+    //         txtValidarCaracteres: { 
+    //             required: true,
+    //             character:true
+    //         }
+    //     },
+    //     messages: {
+    //         txtValidarCaracteres: {
+    //             required: 'Se requiere este campo.',
+    //             character: 'No se aceptan caracteres especiales.'
+    //         }
+    //     },
+    //     onfocusout: false,
+    //     errorElement: 'div',
+    //     invalidHandler: function(form, validator) {
+    //         var errors = validator.numberOfInvalids();
+    //         if (errors) {                    
+    //             validator.errorList[0].element.focus();
+    //         }
+    //     },
+    //     highlight: function (element) { 
+    //         $(element)
+    //         .closest('.form-group')
+    //         .addClass('has-error'); 
+    //     },
+    //     errorPlacement: function(error, element){
+    //         error.appendTo(element.parent());
+    //     },
+    //     success: function (element) {
+    //         element
+    //         .closest('.form-group')
+    //         .removeClass('has-error');
+    //         element.remove();
+    //     },
+    //     submitHandler: function(form){
+    //         form.submit();
+    //     }
+    // });
 });

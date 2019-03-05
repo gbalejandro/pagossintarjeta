@@ -18,22 +18,18 @@ def index():
 @app.route('/postmethod', methods = ['POST'])
 def post_javascript_data():
     global encrip
-    if request.method == 'POST':
-        name = request.form['nombre']
-        number = str(request.form['numero'])
-        month = str(request.form['mes'])
-        year = str(request.form['anio'])
-        cvv = str(request.form['cvv'])
-
-    req.nombre = name
-    req.numerotarj = number
-    req.expmonth = month
-    req.expyear = year
-    req.cvv = cvv
+    req.nombre = request.form['nombre']
+    req.numerotarj = str(request.form['numero'])
+    req.expmonth = str(request.form['mes'])
+    req.expyear = str(request.form['anio'])
+    req.cvv = str(request.form['cvv'])
+    req.cvvAmex = str(request.form['cvvAmex'])
+    # primero valido la informacion
+    #esvalido = req.validar_informacion()
     # Obtengo las credenciales de acceso al banco
     req.obtener_credenciales() 
     texto = req.createxto()
-    print(texto)
+    #print(texto)
     encrypted = req.encrypt(texto)
     #print(encrypted)
     encrip = req.crearequest(encrypted)
@@ -51,32 +47,34 @@ def obtiene_venta():
     respuesta = request.form.get('strResponse')
     company = request.form.get('strIdCompany')
     merchant = request.form.get('strIdMerchant')
+    respuesta2 = req.obtener_response(respuesta)
+    return render_template('respuesta.html', respuesta=respuesta2)
     #print(respuesta)
     #logican = PagoSinTarjeta('', '')
-    response1 = req.decrypt(respuesta)
-    response1 = response1.decode('utf-8')
-    print(response1)
-    response1 = response1.replace("<?xml version='1.0'encoding='UTF-8'?>", '')
-    values = ET.fromstring(response1).findall('.//CENTEROFPAYMENTS')
-    for val in values:
-        resp = val.find('response').text
+    # response1 = req.decrypt(respuesta)
+    # response1 = response1.decode('utf-8')
+    # print(response1)
+    # response1 = response1.replace("<?xml version='1.0'encoding='UTF-8'?>", '')
+    # values = ET.fromstring(response1).findall('.//CENTEROFPAYMENTS')
+    # for val in values:
+    #     resp = val.find('response').text
 
-        if (resp == 'approved'):
-            numaut = val.find('auth').text
-            respuesta2 = 'Su transacción ha sido aprobada satisfactoriamente con el número de autorización ' + numaut
-            referencia = val.find('reference').text
-            voucher_cliente = val.find('voucher_cliente').text
-            voucher_comercio = val.find('voucher_comercio').text
-            vouchcl = req.decrypt_voucher(voucher_cliente)
-            print(vouchcl)
-            vouchco = req.decrypt_voucher(voucher_comercio)
-            print(vouchco)
-            return render_template('respuesta.html', respuesta=respuesta2)           
-        elif (resp == 'denied'):
-            return render_template('respuesta.html', respuesta=resp)
-        else: # es un error
-            error = val.find('nb_error').text
-            return render_template('respuesta.html', respuesta=error)
+    #     if (resp == 'approved'):
+    #         numaut = val.find('auth').text
+    #         respuesta2 = 'Su transacción ha sido aprobada satisfactoriamente con el número de autorización ' + numaut
+    #         referencia = val.find('reference').text
+    #         voucher_cliente = val.find('voucher_cliente').text
+    #         voucher_comercio = val.find('voucher_comercio').text
+    #         vouchcl = req.decrypt_voucher(voucher_cliente)
+    #         print(vouchcl)
+    #         vouchco = req.decrypt_voucher(voucher_comercio)
+    #         print(vouchco)
+    #         return render_template('respuesta.html', respuesta=respuesta2)           
+    #     elif (resp == 'denied'):
+    #         return render_template('respuesta.html', respuesta=resp)
+    #     else: # es un error
+    #         error = val.find('nb_error').text
+    #         return render_template('respuesta.html', respuesta=error)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
