@@ -1,7 +1,7 @@
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto import Random
-import requests, base64, codecs, sqlite3, hashlib, re
+import requests, base64, codecs, sqlite3, hashlib, re, threading
 import xml.etree.cElementTree as ET
 from xml.etree.ElementTree import tostring
 from arc4 import ARC4
@@ -14,7 +14,7 @@ class PagoSinTarjeta(object):
         self.password = ''
         self.compania = 'Z703'
         self.sucursal = '210'
-        self.referencia = 'GOC12619'
+        self.referencia = 'GOC12620'
         self.importe = '0.01'
         self.key_bytes = 16 #(AES128) # parametro de encriptación, parametro fijo
         self.merchant = '158198' # Siempre va a ser de contado, parámetro fijo
@@ -27,6 +27,7 @@ class PagoSinTarjeta(object):
         self.llave = '71B9ECE7' # para desencriptar vouchers, parámetro fijo
         self.moneda = 'MXN' # la moneda siempre va a ser en pesos, parámetro fijo
         self.cvvAmex = '' # cuando es american express
+        self.response_banco = ''
 
     def obtener_credenciales(self):
         conn = sqlite3.connect('params.db')
@@ -112,6 +113,15 @@ class PagoSinTarjeta(object):
             return html_string
         else:
             return ('POST /response/{}'.format(response.status_code))
+        # consulto en 30 segundos que se haya
+        # threading.Timer(interval, function, args = None, kwargs = None)
+        timer = threading.Timer(30.0, self.consulta_transaccion())
+        timer.start() 
+        timer.cancel()
+
+    def consulta_transaccion(self):
+        if self.response_banco == '':
+            pass
 
     def encrypt(self, text):
         iv = Random.new().read(AES.block_size)
@@ -176,18 +186,28 @@ class PagoSinTarjeta(object):
         return codecs.decode(res, 'hex_codec').decode('utf-8')
 
     def obtener_response(self, respuesta):
-        response1 = self.decrypt(respuesta)
-        response1 = response1.decode('utf-8')
-        print(response1)
-        response1 = response1.replace("<?xml version='1.0'encoding='UTF-8'?>", '')
-        values = ET.fromstring(response1).findall('.//CENTEROFPAYMENTS')
+        self.response_banco = self.decrypt(respuesta)
+        self.response_banco = self.response_banco.decode('utf-8')
+        print(self.response_banco)
+        self.response_banco = self.response_banco.replace("<?xml version='1.0'encoding='UTF-8'?>", '')
+        values = ET.fromstring(self.response_banco).findall('.//CENTEROFPAYMENTS')
         for val in values:
             resp = val.find('response').text
 
             if (resp == 'approved'):
                 friend_resp = val.find('friendly_response').text
                 numaut = val.find('auth').text
-                respuesta2 = 'Su transacción ha sido ' + friend_resp + ' con el número de autorización ' + numaut
+                referencia = val.find('reference').text
+                numop = val.find('foliocpagos').text
+                fecha = val.find('date').text
+                hora = val.find('time').text
+                monto = val.find('amount').text
+                respuesta2 = 'La transacción fue aprobada:'
+                respuesta2 += '\nReferencia: ' + referencia  
+                respuesta2 += '\nNúmero de Autorización: ' + numaut  
+                respuesta2 += '\nNúmero de Operación: ' + numop  
+                respuesta2 += '\nFecha y hora de la transacción: ' + fecha + ' ' + hora 
+                respuesta2 += '\nMonto cobrado: $ ' + amount
                 referencia = val.find('reference').text
                 voucher_cliente = val.find('voucher_cliente').text
                 voucher_comercio = val.find('voucher_comercio').text
@@ -198,15 +218,11 @@ class PagoSinTarjeta(object):
                 #return render_template('respuesta.html', respuesta=respuesta2) 
                 return respuesta2          
             elif (resp == 'denied'):
-                respuesta2 = 'La transacción fue rechazada por el banco emisor'
-                #return render_template('respuesta.html', respuesta=resp)
-                return respuesta2
+                return 'La transacción fue rechazada por el banco emisor'
             else: # es un error
                 det_error = val.find('nb_error').text
                 cod_error = val.find('cd_error').text
-                respuesta2 = 'Ocurrió un error al procesar la transacción, no se realizó ningún cargo a la tarjeta. Favor de intentar más tarde'
-                #return render_template('respuesta.html', respuesta=error)
-                return respuesta2
+                return 'Ocurrió un error al procesar la transacción, no se realizó ningún cargo a la tarjeta. Favor de intentar más tarde'
 
     def validar_informacion(self):
         nombreth = self.nombre

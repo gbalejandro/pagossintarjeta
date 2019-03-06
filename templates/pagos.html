@@ -23,8 +23,7 @@
             <div class="web-form-group">
                 <div class="col-xs-12 col-md-4 web_tc_label">Número</div>
                 <div class="col-xs-12 col-md-8">
-                        <input class="form-control" id="numero" name="numero" 
-                        maxlength="16" value="4111111111111111"  type="text" required>
+                        <input class="mask" id="numero" type="text" data-value="">
                 </div>
                 <div class="col-xs-12 col-md-4" id="mensajenu" style="color:red"></div>
             </div>
@@ -94,17 +93,9 @@
             <div id="cvvVM" class="web-form-group">
                 <div class="col-xs-12 col-md-4 web_tc_label">CVV</div>
                 <div class="col-xs-12 col-md-8">
-                    <input class="form-control" id="cvv" value="123" type="password" maxlength="3">
+                    <input class="form-control" id="cvv" value="123" type="password" maxlength="4">
                 </div>
-            </div>
-        </br>
-            <div id="txtAmex" class="web-form-group" style="display: none;">
-                <div class="normal-text col-xs-12 col-md-4 web_tc_label">
-                    Ingrese su código de verificación que contiene la tarjeta American Express
-                </div>
-                <div class="col-xs-12 col-md-8">
-                    <input class="form-control" id="cvvAmex" value="" type="password" maxlength="4">
-                </div>
+                <div class="col-xs-12 col-md-4" id="mensajecvv" style="color:red"></div>
             </div>
         </br>
             <div class="web-form-group">

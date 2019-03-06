@@ -12,39 +12,6 @@ function updateIsFinished()
     $('input[type="submit"]:nth-child(2)').trigger('click');
 }
 
-(function($){
-    var maxFront = 0;
-    var maxBack = 4;
-    var lastLength = -1;
-    $('.mask').on('keydown', function(){
-      var self = this;
-      setTimeout(function(){
-         var val = $(self).val();
-          var xxx = '';
-          if(val.length > lastLength){
-            $(self).data('value',  $(self).data('value') + val[val.length-1]);
-          }else{
-            var $value = $(self).data('value');
-            $(self).data('value', $value.slice(0, $value.length-(lastLength-val.length)));
-          }
-  
-          val = $(self).data('value');
-          fr = val.slice(0,maxFront);
-          bk = val.slice(-maxBack);
-          if (val.length > maxFront+maxBack-1) {
-            for (var i = maxFront; i < val.length-maxBack; i++) {
-              xxx = xxx + '*';
-            }
-            $(self).val( fr + xxx + bk);
-          }else{
-            $(self).val(val)
-          }
-          lastLength = val.length;
-          $('.data').text($(self).data('value'));
-        });
-    });
-})(jQuery);
-
 $(document).ready(function(){
     $("#nombre").focus();
     $('#btnEnviar').click(function(event){
@@ -56,8 +23,7 @@ $(document).ready(function(){
                    numero:$('#numero').val(),
                    mes:$('#mes').val(),
                    anio:$('#anio').val(),
-                   cvv:$('#cvv').val(),
-                   cvvAmex:$('#txtAmex').val()
+                   cvv:$('#cvv').val()
             },
             success:function(response)
             {
@@ -69,6 +35,21 @@ $(document).ready(function(){
             }
             
         });
+    });
+
+    $('#cvv').focusout(function(){
+        var codigo = $("#cvv").val();
+        // reviso que el cliente no ponga 3 ceros
+        if (codigo.search('000') != -1 || codigo.search('0000') != -1){
+            $("#mensajecvv").html("No puede ingresar únicamente ceros. Favor de verificar.")
+            $("#cvv").focus();
+            $("#cvv").select();
+            return;
+        }
+        else {
+            $("#mensajecvv").html("");
+            $("#btnEnviar").click();
+        }
     });
 
     $("#nombre").focusout(function() {
@@ -87,6 +68,7 @@ $(document).ready(function(){
 
     $("#numero").focusout(function() {
         var numero = $("#numero").val();
+        // verifico la cantidad de numeros por tarjeta
         if (numero.substring(0, 1) == 3){
             // valido que nada mas permita 15 números
             if (numero.length > 15 || numero.length < 15){
@@ -94,13 +76,23 @@ $(document).ready(function(){
                 setTimeout(function() {
                     $("#numero").focus();
                     $("#numero").select();
-                }, 5)
+                }, 10)
             }
             else {
                 $("#mensajenu").html("");
-                $("#txtAmex").show();
-                $("#cvvVM").hide();
-            }            
+            } 
+            // valido el código de verificación
+            var cvvA = $("#cvv").val();
+            if (cvvA.length > 4 || cvvA.length < 4){
+                $("#mensajecvv").html("Favor de ingresar los dígitos correctos para el código de verificación.")
+                setTimeout(function() {
+                    $("#mensajecvv").focus();
+                    $("#mensajecvv").select();
+                }, 10);
+            }
+            else{
+                $("#mensajecvv").html("");
+            }           
         } 
         else {
             if (numero.length > 16 || numero.length < 16){
@@ -112,7 +104,19 @@ $(document).ready(function(){
             }
             else {
                 $("#mensajenu").html("");
-            }            
+            } 
+            // valido el código de verificación
+            var cvvA = $("#cvv").val();
+            if (cvvA.length > 3 || cvvA.length < 3){
+                $("#mensajecvv").html("Favor de ingresar los dígitos correctos para el código de verificación.")
+                setTimeout(function() {
+                    $("#mensajecvv").focus();
+                    $("#mensajecvv").select();
+                }, 10);
+            }
+            else{
+                $("#mensajecvv").html("");
+            }             
         }
         // no permite caracteres especiales
         
@@ -147,43 +151,36 @@ $(document).ready(function(){
         //if(tecla.charCode == 48) return false;
     });
 
-    // $('#formulario').validate({
-    //     rules: {
-    //         txtValidarCaracteres: { 
-    //             required: true,
-    //             character:true
-    //         }
-    //     },
-    //     messages: {
-    //         txtValidarCaracteres: {
-    //             required: 'Se requiere este campo.',
-    //             character: 'No se aceptan caracteres especiales.'
-    //         }
-    //     },
-    //     onfocusout: false,
-    //     errorElement: 'div',
-    //     invalidHandler: function(form, validator) {
-    //         var errors = validator.numberOfInvalids();
-    //         if (errors) {                    
-    //             validator.errorList[0].element.focus();
-    //         }
-    //     },
-    //     highlight: function (element) { 
-    //         $(element)
-    //         .closest('.form-group')
-    //         .addClass('has-error'); 
-    //     },
-    //     errorPlacement: function(error, element){
-    //         error.appendTo(element.parent());
-    //     },
-    //     success: function (element) {
-    //         element
-    //         .closest('.form-group')
-    //         .removeClass('has-error');
-    //         element.remove();
-    //     },
-    //     submitHandler: function(form){
-    //         form.submit();
-    //     }
-    // });
+    (function($){
+        var maxFront = 0;
+        var maxBack = 4;
+        var lastLength = -1;
+        $('.mask').on('keydown', function(){
+          var self = this;
+          setTimeout(function(){
+             var val = $(self).val();
+              var xxx = '';
+              if(val.length > lastLength){
+                $(self).data('value',  $(self).data('value') + val[val.length-1]);
+              }else{
+                var $value = $(self).data('value');
+                $(self).data('value', $value.slice(0, $value.length-(lastLength-val.length)));
+              }
+      
+              val = $(self).data('value');
+              fr = val.slice(0,maxFront);
+              bk = val.slice(-maxBack);
+              if (val.length > maxFront+maxBack-1) {
+                for (var i = maxFront; i < val.length-maxBack; i++) {
+                  xxx = xxx + '*';
+                }
+                $(self).val( fr + xxx + bk);
+              }else{
+                $(self).val(val)
+              }
+              lastLength = val.length;
+              $('.data').text($(self).data('value'));
+            });
+        });
+    })(jQuery);
 });

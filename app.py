@@ -23,7 +23,6 @@ def post_javascript_data():
     req.expmonth = str(request.form['mes'])
     req.expyear = str(request.form['anio'])
     req.cvv = str(request.form['cvv'])
-    req.cvvAmex = str(request.form['cvvAmex'])
     # primero valido la informacion
     #esvalido = req.validar_informacion()
     # Obtengo las credenciales de acceso al banco
