@@ -4,6 +4,7 @@
 // var discover = /^6(?:011|5[0-9]{2})[0-9]{12}$/;//Discover card numbers begin with 6011 or 65. All have 16 digits.
 // var emails =  /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 // var cvv = /^[0-9]{3,4}/;//Credit cards security code. from 3 to 4 digits
+import bust from 'gulp-cache-bust'
 
 var intervalId = 0;
 
@@ -39,16 +40,18 @@ $(document).ready(function(){
 
     $('#cvv').focusout(function(){
         var codigo = $("#cvv").val();
-        // reviso que el cliente no ponga 3 ceros
-        if (codigo.search('000') != -1 || codigo.search('0000') != -1){
-            $("#mensajecvv").html("No puede ingresar únicamente ceros. Favor de verificar.")
-            $("#cvv").focus();
-            $("#cvv").select();
-            return;
-        }
-        else {
-            $("#mensajecvv").html("");
-            $("#btnEnviar").click();
+        // reviso que el cliente no ponga 3 ceros solo en V/MC o Discover
+        if (numero.substring(0, 1) != 3){
+            if (codigo.search('000') != -1){
+                $("#mensajecvv").html("No puede ingresar únicamente ceros. Favor de verificar.")
+                $("#cvv").focus();
+                $("#cvv").select();
+                return;
+            }
+            else {
+                $("#mensajecvv").html("");
+                $("#btnEnviar").click();
+            }
         }
     });
 
@@ -151,36 +154,36 @@ $(document).ready(function(){
         //if(tecla.charCode == 48) return false;
     });
 
-    (function($){
-        var maxFront = 0;
-        var maxBack = 4;
-        var lastLength = -1;
-        $('.mask').on('keydown', function(){
-          var self = this;
-          setTimeout(function(){
-             var val = $(self).val();
-              var xxx = '';
-              if(val.length > lastLength){
-                $(self).data('value',  $(self).data('value') + val[val.length-1]);
-              }else{
-                var $value = $(self).data('value');
-                $(self).data('value', $value.slice(0, $value.length-(lastLength-val.length)));
-              }
+    // (function($){
+    //     var maxFront = 0;
+    //     var maxBack = 4;
+    //     var lastLength = -1;
+    //     $('.mask').on('keydown', function(){
+    //       var self = this;
+    //       setTimeout(function(){
+    //          var val = $(self).val();
+    //           var xxx = '';
+    //           if(val.length > lastLength){
+    //             $(self).data('value',  $(self).data('value') + val[val.length-1]);
+    //           }else{
+    //             var $value = $(self).data('value');
+    //             $(self).data('value', $value.slice(0, $value.length-(lastLength-val.length)));
+    //           }
       
-              val = $(self).data('value');
-              fr = val.slice(0,maxFront);
-              bk = val.slice(-maxBack);
-              if (val.length > maxFront+maxBack-1) {
-                for (var i = maxFront; i < val.length-maxBack; i++) {
-                  xxx = xxx + '*';
-                }
-                $(self).val( fr + xxx + bk);
-              }else{
-                $(self).val(val)
-              }
-              lastLength = val.length;
-              $('.data').text($(self).data('value'));
-            });
-        });
-    })(jQuery);
+    //           val = $(self).data('value');
+    //           fr = val.slice(0,maxFront);
+    //           bk = val.slice(-maxBack);
+    //           if (val.length > maxFront+maxBack-1) {
+    //             for (var i = maxFront; i < val.length-maxBack; i++) {
+    //               xxx = xxx + '*';
+    //             }
+    //             $(self).val( fr + xxx + bk);
+    //           }else{
+    //             $(self).val(val)
+    //           }
+    //           lastLength = val.length;
+    //           $('.data').text($(self).data('value'));
+    //         });
+    //     });
+    // })(jQuery);
 });
