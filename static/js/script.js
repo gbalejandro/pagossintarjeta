@@ -4,7 +4,7 @@
 // var discover = /^6(?:011|5[0-9]{2})[0-9]{12}$/;//Discover card numbers begin with 6011 or 65. All have 16 digits.
 // var emails =  /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 // var cvv = /^[0-9]{3,4}/;//Credit cards security code. from 3 to 4 digits
-import bust from 'gulp-cache-bust'
+//import bust from 'gulp-cache-bust'
 
 var intervalId = 0;
 
