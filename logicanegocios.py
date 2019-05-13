@@ -24,7 +24,7 @@ class PagoSinTarjeta(object):
         self.password = ''
         self.compania = 'Z703'
         self.sucursal = '210'
-        self.referencia = 'GOC12373'
+        self.referencia = 'GOC12375'
         self.importe = '2.00'
         self.key_bytes = 16 #(AES128) # parametro de encriptación, parametro fijo
         self.merchant = '158198' # Siempre va a ser de contado, parámetro fijo
@@ -350,6 +350,6 @@ class PagoSinTarjeta(object):
 # req = PagoSinTarjeta()
 # transacciones = req.consulta_transacciones('07/03/2019', '')
 # print(transacciones)
-req = PagoSinTarjeta()
-respuesta = req.cancela_transaccion()
-print(respuesta)
+# req = PagoSinTarjeta()
+# respuesta = req.cancela_transaccion()
+# print(respuesta)
