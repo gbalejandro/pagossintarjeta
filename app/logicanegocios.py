@@ -24,8 +24,8 @@ class PagoSinTarjeta(object):
         self.password = ''
         self.compania = 'Z703'
         self.sucursal = '210'
-        self.referencia = 'GOC12375'
-        self.importe = '2.00'
+        self.referencia = 'GOC123814'
+        self.importe = '250.00'
         self.key_bytes = 16 #(AES128) # parametro de encriptación, parametro fijo
         self.merchant = '158198' # Siempre va a ser de contado, parámetro fijo
         self.nombre = ''
@@ -45,9 +45,9 @@ class PagoSinTarjeta(object):
         conn = sqlite3.connect('params.db')
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
-        c.execute('select * from params')
+        c.execute('select * from configuration')
         param = c.fetchone()
-        user , passw = self.desencriptar_credenciales(param['usuario'], param['password'], '')
+        user , passw = self.desencriptar_credenciales(param['usuario_banco'], param['password_banco'], '')
         self.usuario = user.decode('utf-8')
         self.password = passw.decode('utf-8')       
         #c.execute('''UPDATE params SET usuario=?, password=?''', (user, passw))
