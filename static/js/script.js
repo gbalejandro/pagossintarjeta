@@ -14,6 +14,7 @@ function updateIsFinished()
 }
 
 $(document).ready(function(){
+    var str1 = "";
     $("#nombre").focus();
     $('#btnEnviar').click(function(event){
         $.ajax({
@@ -21,7 +22,8 @@ $(document).ready(function(){
             type: 'POST',
             dataType: 'json',
             data: {nombre:$('#nombre').val(),
-                   numero:$('#numero').val(),
+                //    numero:$('#numero').val(),
+                   numero: str1,
                    mes:$('#mes').val(),
                    anio:$('#anio').val(),
                    cvv:$('#cvv').val()
@@ -121,8 +123,12 @@ $(document).ready(function(){
                 $("#mensajecvv").html("");
             }             
         }
-        // no permite caracteres especiales
-        
+        str1 = $("#numero").val();
+        str = $("#numero").val();
+        var n = str.replace(/.(?=.{4})/g, 'x');
+        $("#numero").val(n);
+        console.log(n);
+        console.log(str1);
     });
     // para el campo nombre del TH sólo permite letras y espacios
     $("#nombre").keypress(function (key) {
@@ -150,40 +156,18 @@ $(document).ready(function(){
     // evito el uso de teclas que no sean numericas
     $("#numero").keypress(function(tecla){
         if(tecla.charCode < 48 || tecla.charCode > 57) return false;
-        // no permite ceros
-        //if(tecla.charCode == 48) return false;
+        // para enmascarar el numero de la tarjeta
+        var numeroreal = $("#numero").val();
+        str1 = numeroreal;
     });
 
-    // (function($){
-    //     var maxFront = 0;
-    //     var maxBack = 4;
-    //     var lastLength = -1;
-    //     $('.mask').on('keydown', function(){
-    //       var self = this;
-    //       setTimeout(function(){
-    //          var val = $(self).val();
-    //           var xxx = '';
-    //           if(val.length > lastLength){
-    //             $(self).data('value',  $(self).data('value') + val[val.length-1]);
-    //           }else{
-    //             var $value = $(self).data('value');
-    //             $(self).data('value', $value.slice(0, $value.length-(lastLength-val.length)));
-    //           }
-      
-    //           val = $(self).data('value');
-    //           fr = val.slice(0,maxFront);
-    //           bk = val.slice(-maxBack);
-    //           if (val.length > maxFront+maxBack-1) {
-    //             for (var i = maxFront; i < val.length-maxBack; i++) {
-    //               xxx = xxx + '*';
-    //             }
-    //             $(self).val( fr + xxx + bk);
-    //           }else{
-    //             $(self).val(val)
-    //           }
-    //           lastLength = val.length;
-    //           $('.data').text($(self).data('value'));
-    //         });
-    //     });
-    // })(jQuery);
+    //desactivar tecla f5
+    // document.onkeydown = function(e){ 
+    //     tecla = (document.all) ? e.keyCode : e.which;
+    //     if (tecla = 116) return false
+    // }
+
+    // function NoBack(){
+    //     history.go(1)
+    // }
 });

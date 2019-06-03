@@ -55,6 +55,14 @@ a.button {
 a.button i {
     margin-right: 10px;
 }
+#mes {
+    margin-right: 10px;
+    height: 45px;
+}
+#anio {
+    margin-right: 10px;
+    height: 45px;
+}
 a.button.disabled {
     background: none repeat scroll 0 0 #ccc;
     cursor: default;
@@ -70,6 +78,7 @@ a.button.disabled {
     font-size: 18px;
     padding: 5px 20px;
     width: auto;
+    margin: 20px;
 }
 .bkng-tb-cntnt a.button.o {
     background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
@@ -98,7 +107,7 @@ a.button.disabled {
 }
 .pymnts {
     float: left;
-    width: 800px;
+    width: 780px;
 }
 .pymnts * {
     float: left;
@@ -170,7 +179,7 @@ a.button.disabled {
 }
 
 .pymnt-cntnt div.sctn-row {
-    margin: 20px 30px 0;
+    margin: 20px 20px 0;
     width: 740px;
 }
 .pymnt-cntnt div.sctn-row div.sctn-col {

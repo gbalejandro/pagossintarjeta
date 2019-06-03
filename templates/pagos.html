@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <script type="text/javascript" 
+        src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script type="text/javascript" 
+        src="https://openpay.s3.amazonaws.com/openpay.v1.min.js"></script>
+<script type='text/javascript' 
+  src="https://openpay.s3.amazonaws.com/openpay-data.v1.min.js"></script>
+
+<!-- Custom CSS -->
+<link href="static/css/bootstrap.min.css" rel="stylesheet">
+<link href="static/css/style-pagos.css" rel="stylesheet" type="text/css">
+<Script language="javascript">
+    // bloquea el boton actualizar flecha redonda
+    
+    //desactivar tecla f5
+    function Verificar()
+    {
+        var tecla=window.event.keyCode;
+        // alert(tecla);
+        if (tecla==116) 
+        {
+            event.keyCode=0;
+            event.returnValue=false;
+        }
+    }
+    function nobackbutton(){
+        window.location.hash="no-back-button";
+        window.location.hash="Again-No-back-button" //chrome	
+        window.onhashchange=function(){window.location.hash="no-back-button";}
+    }
+    // document.onkeydown = function(e){
+    //     tecla = (document.all) ? e.keyCode : e.which;
+    //     alert(tecla)
+    // }
+</script>
+</head>
+<body onKeyDown="javascript:Verificar()" onload="nobackbutton();">
+    <div class="bkng-tb-cntnt">
+        <div class="pymnts">
+            <form name="cliente" action="https://qa.mitec.com.mx/ws3dsecure/Auth3dsecure" method="POST" id="formulario">
+                <input type="hidden" name="token_id" id="token_id">
+                <div class="pymnt-itm card active">
+                    <h2>Tarjeta de crédito o débito</h2>
+                    <div class="pymnt-cntnt">
+                        <div class="card-expl">
+                            <div class="credit"><h4>Tarjetas de crédito</h4></div>
+                            <div class="debit"><h4>Tarjetas de débito</h4></div>
+                        </div>
+                        <div class="sctn-row">
+                            <div class="sctn-col l">
+                                <label>Nombre del titular</label><input type="text" placeholder="Como aparece en la tarjeta" autocomplete="off" id="nombre" maxlength="40">
+                            </div>
+                            <div class="sctn-col">
+                                <label>Número de tarjeta</label><input type="text" maxlength="16" placeholder="Número de tarjeta"  autocomplete="off" id="numero">
+                                <!-- <input type="text" name="numreal" id="numreal"> -->
+                            </div>
+                            <div class="sctn-row">
+                                <div class="sctn-col l">
+                                    <label>Fecha de expiración</label>
+                                    <select id="mes">
+                                        <option value="01">January</option>
+                                        <option value="02">February </option>
+                                        <option value="03">March</option>
+                                        <option value="04">April</option>
+                                        <option value="05">May</option>
+                                        <option value="06">June</option>
+                                        <option value="07">July</option>
+                                        <option value="08">August</option>
+                                        <option value="09">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>                
+                                    </select>
+                                    <select id="anio">
+                                        <option value="19"> 2019</option>
+                                        <option value="20"> 2020</option>
+                                        <option value="21"> 2021</option>
+                                        <option value="22"> 2022</option>
+                                        <option value="23"> 2023</option>
+                                        <option value="24"> 2024</option>
+                                        <option value="25"> 2025</option>
+                                    </select>
+                                    <!-- <div class="sctn-col half l"><input type="text" value="04" placeholder="Mes" id="mes"></div> -->
+                                    <!-- <div class="sctn-col half l"><input type="text" value="20" placeholder="Año" id="anio"></div> -->
+                                </div>
+                                <div class="sctn-col cvv"><label>Código de seguridad</label>
+                                    <div class="sctn-col half l"><input type="password" placeholder="3 dígitos" value="123" autocomplete="off" id="cvv"></div>
+                                </div>
+                            </div>
+                            <div class="openpay"><div class="logo"></div>
+                            <div class="shield">Tus pagos se realizan de forma segura con encriptación de 256 bits</div>
+                        </div>
+                        <div class="sctn-row">
+                            <a class="button rght" id="btnEnviar">Pagar</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="static/js/script.js"></script>
+    <!-- <script src="static/js/csrftoken.js' %}"></script> -->
+</body>
+</html>

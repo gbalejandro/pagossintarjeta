@@ -6,6 +6,7 @@ import hashlib
 import re
 import threading
 import suds
+import random
 
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
@@ -24,7 +25,7 @@ class PagoSinTarjeta(object):
         self.password = ''
         self.compania = 'Z703'
         self.sucursal = '210'
-        self.referencia = 'GOC123814'
+        self.referencia = ''
         self.importe = '250.00'
         self.key_bytes = 16 #(AES128) # parametro de encriptación, parametro fijo
         self.merchant = '158198' # Siempre va a ser de contado, parámetro fijo
@@ -40,6 +41,12 @@ class PagoSinTarjeta(object):
         self.response_banco = ''
         self.fecha_consulta = ''
         self.usuario_transaccion = ''
+
+    def obtener_referencia(self):
+        self.referencia = 'GOC'
+        numal = random.randrange(10000)
+        self.referencia = self.referencia + str(numal)
+        return self.referencia
 
     def obtener_credenciales(self):
         conn = sqlite3.connect('params.db')
@@ -97,7 +104,7 @@ class PagoSinTarjeta(object):
         ET.SubElement(business, 'bs_pwd').text = self.password
         transaction = ET.SubElement(trans3ds, 'transaction')
         ET.SubElement(transaction, 'tx_merchant').text = self.merchant
-        ET.SubElement(transaction, 'tx_reference').text = self.referencia
+        ET.SubElement(transaction, 'tx_reference').text = self.obtener_referencia()
         ET.SubElement(transaction, 'tx_amount').text = self.importe
         ET.SubElement(transaction, 'tx_currency').text = self.moneda
         creditcard = ET.SubElement(transaction, 'creditcard')
@@ -150,6 +157,7 @@ class PagoSinTarjeta(object):
         response = client.service.transacciones('9265654606', encript, '', '', '', '')
         result = self.decrypt(response)
         result = result.decode('utf-8')
+        
         return result
 
     def encrypt(self, text):
@@ -313,7 +321,36 @@ class PagoSinTarjeta(object):
             return 'No se permiten caracteres especiales en el número de la tarjeta.'
         # no se permiten letras en el número de tarjeta
         if numtarj.isnumeric():
-            return 'No se permiten letras en el número de tarjeta. Favor de verificar'           
+            return 'No se permiten letras en el número de tarjeta. Favor de verificar' 
+
+    def createxto_amex(self):
+        trans3ds = ET.Element('TRANSACTION3DS')
+        business = ET.SubElement(trans3ds, 'business')
+        ET.SubElement(business, 'bs_idCompany').text = self.compania
+        ET.SubElement(business, 'bs_idBranch').text = self.sucursal
+        ET.SubElement(business, 'bs_country').text = 'MEX'
+        ET.SubElement(business, 'bs_user').text = self.usuario
+        ET.SubElement(business, 'bs_pwd').text = self.password
+        transaction = ET.SubElement(trans3ds, 'transaction')
+        ET.SubElement(transaction, 'tx_merchant').text = '197479'
+        ET.SubElement(transaction, 'tx_reference').text = self.obtener_referencia()
+        ET.SubElement(transaction, 'tx_amount').text = self.importe
+        ET.SubElement(transaction, 'tx_currency').text = self.moneda
+        creditcard = ET.SubElement(transaction, 'creditcard')
+        ET.SubElement(creditcard, 'cc_name').text = self.nombre
+        ET.SubElement(creditcard, 'cc_number').text = self.numerotarj
+        ET.SubElement(creditcard, 'cc_expMonth').text = self.expmonth
+        ET.SubElement(creditcard, 'cc_expYear').text = self.expyear
+        ET.SubElement(creditcard, 'cc_cvv').text = self.cvv
+        billing = ET.SubElement(transaction, 'billing')
+        ET.SubElement(billing, 'bl_billingPhone').text = '9981677985'
+        ET.SubElement(billing, 'bl_billingEmail').text = 'alejandrog@oasishoteles.com'
+        ET.SubElement(transaction, 'tx_urlResponse').text = 'http://127.0.0.1:5000/api/response'
+        ET.SubElement(transaction, 'tx_cobro').text = '1'
+        ET.SubElement(transaction, 'tx_browserIP').text = '192.168.2.51'
+
+        mixml = ET.tostring(trans3ds, encoding=None)
+        return str(mixml, 'utf-8')          
 
 
 # prueba del request
@@ -338,7 +375,7 @@ class PagoSinTarjeta(object):
 # request = req.consume_api(encrip)
 # print(request)
 # req = PagoSinTarjeta()
-# decrypted = req.decrypt('')
+# decrypted = req.decrypt('Vx9hCtmHyy+PvpHZi2PNhozagW0VMS+OZy40MDnZWrPXjNSTQe2WSOH+Y0ySoLRZ/IWieH4RpYkuLzJvTYup7BwLtSVrie0pWH+04xsOdXhsBMbH/gNz0LbPL3iTkT/QOioIB8GVpt9ckUZvmycQ9E/baIXCd2d5EgmVXAKG/Cpsa2IUGOy6lAg4ubFaWOFHVqIGYnuUq56mX+el1nxBjm6qy3lXFVSfiBgnRAwuoXW4FxbrYloMpKi3+pokUNi0rkmhqOpmOzGLA3eO/hyQQHyERu0ZCf02mzHnkPZYqx7YBW+tQIdctMUxfLM0S0L/EGCkv1FXZkb1nDCVvle50Spx7d57cBJtB6nJoHF57BlR6B1H7Z17GqwjWKW5ZWeHI0zHNaecY5wSI9Ls/uU7jfhYyfNln7cFywvsYww7mFA+a95jTkjYidBe/W6fTXs0pqtgDytuA3fPDCHjfhfYPiVJIQTUDrIRSqUZtHci1WYjsJWfjeojJiHfKpxdQefnbvr3vhsMOz6e3yDnTa9/5jY3pXo8w5SBbXH5Kx1s16Q5YtzkFp7lXZ18EHUMJeXUEkZuIMZWpjdbY1cWwNr4gtbCH0wLo79m1CzmcuEUulfWFDRNTCduoc1fwsAaJ6ipPhtlOM2mi02bk26e64+t8qDPieEOkpw/9lzsOQW9MFgoE44JTE4rnpoFNr8ogNUG/rFJjMG3bZ4fWZ+prXNu76Ue8va01BNgOenbmu6cczqwVFtp1OpNjf29BNl1SP2YGsoikcvBRQBhICXk3vYS8bFJOFhBIQ0Y7uMh8tLvF93BfEu6zEq8nbnTXBiRue352nYdRugJun2dxgiVzFNtXXF9ADK3B3t2NMPns3eDiZ/SnkG2chp6RopOj0c1xSTvKB8achBdH/uRDFxfZa/0DMfsxjMri8KANmUxkAN1ohzKfm3MoRT+LtojTI8MgxBlNJkPVBuoqiXcULxb0I7FssauXoHcgYmS2l7eYkO1Os+VGElB+lE2zBCw8HZmyYcTP5q55oj7N5b6h1Ko/HWjRDVXzDnKyRIDYG6lQJO0Q0Ww95wFGBS3E5fTlCI1oMHl1F+qmTNNGJmkhXKfyLptpykYXDM9nk0q66mN9kKftX8=')
 # print(decrypted)
 # req = PagoSinTarjeta()
 # decrypted = req.decrypt_voucher('')
@@ -348,7 +385,7 @@ class PagoSinTarjeta(object):
 # print(user)
 # print(passw)
 # req = PagoSinTarjeta()
-# transacciones = req.consulta_transacciones('07/03/2019', '')
+# transacciones = req.consulta_transacciones('20/05/2019', 'GOC123823')
 # print(transacciones)
 # req = PagoSinTarjeta()
 # respuesta = req.cancela_transaccion()

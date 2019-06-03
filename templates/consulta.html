@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form method="POST">
+        <div class="form-group">
+            <input 
+                type="text" 
+                class="form-control datetime" 
+                name="fecha"
+                id="fecha" 
+                placeholder="Fecha Trans"
+            >
+        </div>
+        <div class="form-group">
+            <input type="text" id="referencia" class="form-control" name="referencia" placeholder="Referencia">
+        </div>
+        <button type="submit" id="btnBuscar" class="btn btn-block btn-primary">Buscar</button>
+    </form>
+
+    <br />
+
+    <div class="table-responsive">
+        {% if transacciones %}
+            {% for transaccion in transacciones %}
+                <p>{{transaccion.referencia}}</p>
+                <p>{{transaccion.fecha}}</p>
+                <p>{{transaccion.hora}}</p>
+                <p>{{transaccion.importe}}</p>
+                <p>{{transaccion.numero_autorizacion}}</p>
+                <p>{{transaccion.numero_operacion}}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}
